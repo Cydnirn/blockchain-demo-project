@@ -1,12 +1,6 @@
 namespace Blockchain_Demo_Project;
 using System.Security.Cryptography;
 
-public interface IWallet
-{
-    string PublicKey { get; }
-    string PrivateKey { get; }
-}
-
 public interface IKeyGenerator
 {
     (byte[] publicKey, byte[] privateKey) GenerateKeyPair();
@@ -51,15 +45,8 @@ public class Wallet : IWallet
 }
 
 /// Factory class responsible for creating wallet instances
-public class WalletFactory
+public class WalletFactory (IKeyGenerator _keyGenerator)
 {
-    private readonly IKeyGenerator _keyGenerator;
-
-    public WalletFactory(IKeyGenerator keyGenerator)
-    {
-        _keyGenerator = keyGenerator ?? throw new ArgumentNullException(nameof(keyGenerator));
-    }
-
     public IWallet CreateWallet()
     {
         try
