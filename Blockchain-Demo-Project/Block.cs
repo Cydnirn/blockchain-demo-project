@@ -8,7 +8,7 @@ public abstract class BlockBase : IBlock
     public abstract string PreviousHash { get; }
     public abstract string Hash { get; protected set; }
     public abstract IReadOnlyList<ITransact> TransactionsReadOnly { get; }
-    public abstract int Nonce { get; set; }
+    public abstract int Nonce { get; protected set; }
 
     public abstract void GenerateHash();
     public abstract bool ValidBlock(int difficulty = 2);
@@ -21,9 +21,9 @@ public class Block(string previousHash, IReadOnlyList<ITransact> transactions) :
     private string Timestamp { get; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
     private List<ITransact> Transactions { get; } = [..transactions];
     public override IReadOnlyList<ITransact> TransactionsReadOnly { get; } = [..transactions];
-    public override int Nonce { get; set; }
+    public override int Nonce { get; protected set; }
 
-
+    public void IncrementNonce() => Nonce++;
     public override void GenerateHash()
     {
         // Concatenate the previous hash, timestamp, nonce, and transaction signatures to create a unique hash for the block

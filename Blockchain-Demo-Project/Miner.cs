@@ -31,7 +31,7 @@ public class Miner(string walletAddress) : IMiner
         // Simulate mining by finding a valid nonce
         while (!newBlock.Hash.StartsWith(new string('0', blockchain.Difficulty)))
         {
-            newBlock.Nonce++;
+            newBlock.IncrementNonce();
             newBlock.GenerateHash();
         }
 

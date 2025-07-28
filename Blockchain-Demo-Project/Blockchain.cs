@@ -4,16 +4,19 @@ namespace Blockchain_Demo_Project;
 
 public class Blockchain : IBlockchain
 {
-    public string Name { get; } = "Wiwok Chain";
+    public string Name { get; }
     private List<IBlock> Chain {get;  } = new();
     public IReadOnlyList<IBlock> GetChain() => Chain.AsReadOnly();
-    public int Difficulty { get; private set; } = 5;
-    public decimal MiningReward { get; private set; } = 50;
+    public int Difficulty { get; private set; }
+    public decimal MiningReward { get; private set; }
     private List<ITransact> PendingTransactions { get;  } = new();
     public IReadOnlyList<ITransact> GetPendingTransactions() => PendingTransactions.AsReadOnly();
 
     public Blockchain()
     {
+        Name = "Wiwok Chain";
+        Difficulty = 10;
+        MiningReward = 50;
         Chain.Add(CreateGenesisBlock());
     }
 
@@ -25,10 +28,7 @@ public class Blockchain : IBlockchain
         return new Block("0", PendingTransactions);
     }
 
-    public IBlock GetLatestBlock()
-    {
-        return Chain.Last();
-    }
+    public IBlock GetLatestBlock() => GetChain().LastOrDefault() ?? throw new InvalidOperationException("Blockchain is empty.");
 
     private void ClearPendingTransactions()
     {
@@ -122,12 +122,28 @@ public class Blockchain : IBlockchain
 
 public class TestChain : IBlockchain
 {
-    public string Name { get; } = "Test Chain";
-    public int Difficulty { get; } = 2;
-    public decimal MiningReward { get; } = 50;
-    public IReadOnlyList<ITransact> GetPendingTransactions() => new List<ITransact>();
-    public IReadOnlyList<IBlock> GetChain() => new List<IBlock>();
-    public IBlock GetLatestBlock() => new Block("0", new List<ITransact>());
+    public string Name { get; }
+    public int Difficulty { get; }
+    public decimal MiningReward { get; }
+    public TestChain()
+    {
+        Name = "Test Chain";
+        Difficulty = 2;
+        MiningReward = 50;
+        Chain.Add(CreateGenesisBlock());
+    }
+    private Block CreateGenesisBlock()
+    {
+        // Create the first block in the blockchain with a default previous hash of "0"
+        var genesisTransaction = new Transaction("System", "0", 1);
+        PendingTransactions.Add(genesisTransaction);
+        return new Block("0", PendingTransactions);
+    }
+    private List<ITransact> PendingTransactions { get;  } = new();
+    public IReadOnlyList<ITransact> GetPendingTransactions() => PendingTransactions.AsReadOnly();
+    private List<IBlock> Chain { get;  } = new();
+    public IReadOnlyList<IBlock> GetChain() => Chain.AsReadOnly();
+    public IBlock GetLatestBlock() => GetChain().Last();
     public void AddBlock(IBlock block) { }
     public void AddTransaction(ITransact transaction) { }
     public decimal GetBalance(string walletAddress) => 0;
