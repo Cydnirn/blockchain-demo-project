@@ -70,16 +70,10 @@ internal class EcdsaKeyGenerator : KeyGenerator
 /// Contains a public key and a private key for cryptographic operations.
 /// The public key is used to identify the wallet, while the private key is used for signing
 /// transactions and proving ownership of the wallet's funds.
-public class Wallet
+public class Wallet(string publicKey, string privateKey)
 {
-    public string PublicKey { get; }
-    public string PrivateKey { get; }
-
-    public Wallet(string publicKey, string privateKey)
-    {
-        PublicKey = publicKey ?? throw new ArgumentNullException(nameof(publicKey));
-        PrivateKey = privateKey ?? throw new ArgumentNullException(nameof(privateKey));
-    }
+    public string PublicKey { get; } = publicKey;
+    public string PrivateKey { get; } = privateKey;
 
     internal static Wallet Create()
     {
