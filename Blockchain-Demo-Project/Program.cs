@@ -11,7 +11,7 @@ while (true)
     if (wallet != null && firstIteration)
     {
         var miner = Miner.Create(wallet.PublicKey);
-        Thread minerThread = new Thread(() => miner.MineBlock(blockchain));
+        var minerThread = new Thread(() => miner.MineBlock(blockchain));
         minerThread.Start();
         firstIteration = false;
     }
