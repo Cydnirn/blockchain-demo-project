@@ -3,15 +3,17 @@ using Blockchain_Demo_Project;
 
 Wallet? wallet = null;
 var blockchain = new Blockchain();
+var firstIteration = true;
 
 while (true)
 {
     //Initiate the first WiwokCoin wallet
-    if (wallet != null)
+    if (wallet != null && firstIteration)
     {
         var miner = Miner.Create(wallet.PublicKey);
         Thread minerThread = new Thread(() => miner.MineBlock(blockchain));
         minerThread.Start();
+        firstIteration = false;
     }
 
     Console.Clear();
