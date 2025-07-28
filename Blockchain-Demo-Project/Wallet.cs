@@ -13,14 +13,14 @@ internal abstract class KeyGenerator
 internal class EcdsaKeyGenerator : KeyGenerator
 {
     private const string CurveName = "secp256k1";
+    private readonly ECDsa _instance = ECDsa.Create(ECCurve.CreateFromFriendlyName(CurveName));
 
     // Generates a new key pair using the secp256k1 curve.
     // Returns a tuple containing the public key and private key in byte arrays.
     public override (byte[] publicKey, byte[] privateKey) GenerateKeyPair()
     {
-        using var ecdsa = ECDsa.Create(ECCurve.CreateFromFriendlyName(CurveName));
-        var privateKey = ecdsa.ExportECPrivateKey();
-        var publicKey = ecdsa.ExportSubjectPublicKeyInfo();
+        var privateKey = _instance.ExportECPrivateKey();
+        var publicKey = _instance.ExportSubjectPublicKeyInfo();
 
         return (publicKey, privateKey);
     }
@@ -30,9 +30,39 @@ internal class EcdsaKeyGenerator : KeyGenerator
     /// Returns the public key in SubjectPublicKeyInfo format.
     public override byte[] ExportKeyPair(string privateKey)
     {
-        using var ecdsa = ECDsa.Create(ECCurve.CreateFromFriendlyName(CurveName));
-        ecdsa.ImportECPrivateKey(Convert.FromHexString(privateKey), out _);
-        return ecdsa.ExportSubjectPublicKeyInfo();
+        _instance.ImportECPrivateKey(Convert.FromHexString(privateKey), out _);
+        return _instance.ExportSubjectPublicKeyInfo();
+    }
+
+    // Signs a message using the private key and returns the signature.
+    protected byte[] SignData(byte[] message, byte[] privateKey, HashAlgorithmName hashAlgorithm)
+    {
+        try
+        {
+            _instance.ImportECPrivateKey(privateKey, out _);
+            return _instance.SignData(message, hashAlgorithm);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Error signing data: " + e.Message);
+            throw;
+        }
+    }
+
+    // Verifies a digital signature using the public key and the original message.
+    // Returns true if the signature is valid, false otherwise.
+    protected bool VerifySignature(byte[] signature, byte[] message, byte[] publicKey, HashAlgorithmName hashAlgorithm )
+    {
+        try
+        {
+            _instance.ImportSubjectPublicKeyInfo(publicKey, out _);
+            return _instance.VerifyData(message, signature, hashAlgorithm);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Error verifying signature: " + e.Message);
+            return false;
+        }
     }
 }
 
