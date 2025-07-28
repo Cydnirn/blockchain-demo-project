@@ -100,7 +100,7 @@ public class Wallet(string publicKey, string privateKey)
 }
 
 /// Factory class responsible for creating wallet instances
-internal class WalletFactory (KeyGenerator keyGenerator)
+internal class WalletFactory (KeyGenerator keyGenerator) : IWalletFactory
 {
     public Wallet CreateWallet()
     {

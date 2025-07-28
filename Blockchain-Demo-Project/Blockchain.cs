@@ -2,12 +2,13 @@ using Blockchain_Demo_Project.Interfaces;
 
 namespace Blockchain_Demo_Project;
 
-public class Blockchain
+public class Blockchain : IBlockchain
 {
+    public string Name { get; } = "Wiwok Chain";
     private List<IBlock> Chain {get;  } = new();
     public IReadOnlyList<IBlock> GetChain() => Chain.AsReadOnly();
-    public int Difficulty { get; private set; } = 2;
-    public decimal MiningReward { get; private set; } = 100;
+    public int Difficulty { get; private set; } = 5;
+    public decimal MiningReward { get; private set; } = 50;
     private List<ITransact> PendingTransactions { get;  } = new();
     public IReadOnlyList<ITransact> GetPendingTransactions() => PendingTransactions.AsReadOnly();
 
@@ -98,23 +99,53 @@ public class Blockchain
         if (string.IsNullOrEmpty(address)) throw new ArgumentException("Address cannot be null or empty.", nameof(address));
         return CalculateAddressBalance(address);
     }
+
+    public void ValidateChain()
+    {
+        for (var i = 1; i < Chain.Count; i++)
+        {
+            var currentBlock = Chain[i];
+            var previousBlock = Chain[i - 1];
+
+            if (currentBlock.PreviousHash != previousBlock.Hash)
+            {
+                throw new InvalidOperationException($"Invalid chain: Block {i} has an incorrect previous hash.");
+            }
+
+            if (!currentBlock.ValidBlock(Difficulty))
+            {
+                throw new InvalidOperationException($"Invalid block: Block {i} is not valid.");
+            }
+        }
+    }
 }
 
-public class BlockchainService(Blockchain blockchain) : IBlockchainService
+public class TestChain : IBlockchain
 {
-    private Blockchain Blockchain { get; } = blockchain;
-    private static BlockchainService? _instance;
+    public string Name { get; } = "Test Chain";
+    public int Difficulty { get; } = 2;
+    public decimal MiningReward { get; } = 50;
+    public IReadOnlyList<ITransact> GetPendingTransactions() => new List<ITransact>();
+    public IReadOnlyList<IBlock> GetChain() => new List<IBlock>();
+    public IBlock GetLatestBlock() => new Block("0", new List<ITransact>());
+    public void AddBlock(IBlock block) { }
+    public void AddTransaction(ITransact transaction) { }
+    public decimal GetBalance(string walletAddress) => 0;
+    public void ValidateChain() { }
+}
 
-    public static BlockchainService Create(Blockchain blockchain)
+public class BlockchainService: IBlockchainService
+{
+    private IBlockchain Blockchain { get;  }
+
+    private BlockchainService(IBlockchain blockchain)
     {
-        if (_instance != null) return _instance;
+        Blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
+    }
 
-        lock (typeof(BlockchainService))
-        {
-            _instance ??= new BlockchainService(blockchain);
-        }
-
-        return _instance;
+    public static BlockchainService Create(IBlockchain blockchain)
+    {
+        return new BlockchainService(blockchain);
     }
 
     private void ExecuteMiner(string address)
@@ -122,6 +153,14 @@ public class BlockchainService(Blockchain blockchain) : IBlockchainService
         var miner = Miner.Create(address);
         var minerThread = new Thread(() => miner.MineBlock(Blockchain));
         minerThread.Start();
+    }
+
+    public void InitializeBlockchain(string address)
+    {
+        if (GetChain().Count == 1)
+        {
+            ExecuteMiner(address);
+        }
     }
 
     public void AddTransaction(ITransact transaction, string privateKey)
@@ -137,4 +176,8 @@ public class BlockchainService(Blockchain blockchain) : IBlockchainService
     {
         return Blockchain.GetBalance(walletAddress);
     }
+
+    public IReadOnlyList<IBlock> GetChain() => Blockchain.GetChain();
+
+    public string GetChainName() => Blockchain.Name;
 }

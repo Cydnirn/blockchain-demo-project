@@ -12,7 +12,7 @@ public class Miner(string walletAddress) : IMiner
     }
 
     // Method to mine a new block and add it to the blockchain
-    public void MineBlock(Blockchain blockchain)
+    public void MineBlock(IBlockchain blockchain)
     {
         if (blockchain.GetPendingTransactions().Count == 0)
         {
