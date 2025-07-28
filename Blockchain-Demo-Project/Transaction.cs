@@ -96,7 +96,7 @@ public class Transaction(string fromAddress, string toAddress, decimal amount) :
 
 public class MinerTransaction : Transaction
 {
-    public MinerTransaction(string toAddress, decimal amount) : base("Miner", toAddress, amount)
+    public MinerTransaction(string toAddress, decimal amount) : base("System", toAddress, amount)
     {
         // Miner transactions are typically created with a fixed "from" address of "Miner"
         // and a specified "to" address and amount.
