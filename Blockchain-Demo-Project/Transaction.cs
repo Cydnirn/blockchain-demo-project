@@ -78,6 +78,11 @@ public class Transaction(string fromAddress, string toAddress, decimal amount) :
     {
         try
         {
+            if(FromAddress == "System")
+            {
+                // Miner transactions do not require signature verification
+                return true;
+            }
             if (string.IsNullOrEmpty(Signature))
             {
                 throw new InvalidOperationException("Signature is not set or is empty.");

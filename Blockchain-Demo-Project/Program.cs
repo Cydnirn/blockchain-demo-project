@@ -1,17 +1,27 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using System;
 using Blockchain_Demo_Project;
 
-Wallet wallet = null;
+Wallet? wallet = null;
+var blockchain = new Blockchain();
 
 while (true)
 {
+    //Initiate the first WiwokCoin wallet
+    if (wallet != null)
+    {
+        var miner = Miner.Create(wallet.PublicKey);
+        miner.MineBlock(blockchain);
+        Console.WriteLine("Initial mining completed. Wallet balance updated.");
+    }
+
     Console.Clear();
     Console.WriteLine("Blockchain Demo Project");
     Console.WriteLine("Current Wallet: " + (wallet != null ? wallet.PublicKey : "No wallet created"));
     Console.WriteLine("1. Create a new wallet");
     Console.WriteLine("2. Export an existing wallet");
     Console.WriteLine("3. Delete the current wallet");
+    Console.WriteLine("4. Send a transaction");
+    Console.WriteLine("5. See Balance");
 
     Console.WriteLine("Press 'q' to quit or any other key to continue...");
     var input = Console.ReadKey(true).KeyChar;
@@ -66,6 +76,57 @@ while (true)
                 }
             }
 
+            Console.ReadKey();
+            break;
+        case '4':
+            if (wallet == null)
+            {
+                Console.WriteLine("No wallet created. Please create a wallet first.");
+                Console.ReadKey();
+                break;
+            }
+            Console.WriteLine("Enter the recipient's address:");
+            var toAddress = Console.ReadLine()?.Trim();
+            if (string.IsNullOrEmpty(toAddress))
+            {
+                Console.WriteLine("Recipient address cannot be empty.");
+                Console.ReadKey();
+                break;
+            }
+            Console.WriteLine("Enter the amount of WiwokCoin to send:");
+            if (!decimal.TryParse(Console.ReadLine()?.Trim(), out var amount) || amount <= 0)
+            {
+                Console.WriteLine("Invalid amount. Please enter a valid decimal number greater than zero.");
+                Console.ReadKey();
+                break;
+            }
+            var transaction = new Transaction(wallet.PublicKey, toAddress, amount);
+            transaction.SignTransaction(wallet.PrivateKey);
+            try
+            {
+                blockchain.AddTransaction(transaction);
+                Console.WriteLine("Transaction added successfully!");
+                var miner = Miner.Create(wallet.PublicKey);
+                Thread minerThred = new Thread(() => miner.MineBlock(blockchain));
+                Console.ReadKey();
+                minerThred.Start();
+                minerThred.Join();
+                Console.WriteLine("Block mined successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error adding transaction: " + ex.Message);
+                Console.ReadKey();
+            }
+            break;
+        case '5':
+            if (wallet == null)
+            {
+                Console.WriteLine("No wallet created. Please create a wallet first.");
+                Console.ReadKey();
+                break;
+            }
+            Console.WriteLine("Balance for wallet: " + blockchain.GetBalance(wallet.PublicKey));
             Console.ReadKey();
             break;
     }
