@@ -109,9 +109,9 @@ while (true)
                 blockchain.AddTransaction(transaction);
                 Console.WriteLine("Transaction added successfully!");
                 var miner = Miner.Create(wallet.PublicKey);
-                Thread minerThred = new Thread(() => miner.MineBlock(blockchain));
+                var minerThread = new Thread(() => miner.MineBlock(blockchain));
                 Console.ReadKey();
-                minerThred.Start();
+                minerThread.Start();
             }
             catch (Exception ex)
             {
