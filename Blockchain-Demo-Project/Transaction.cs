@@ -3,48 +3,49 @@ using Blockchain_Demo_Project.Interfaces;
 
 namespace Blockchain_Demo_Project;
 
+internal class Signing : EcdsaKeyGenerator, ISigningService
+{
+    private readonly byte[]? _privateKey;
+
+    private Signing(string? privateKey = null)
+    {
+        _privateKey = string.IsNullOrEmpty(privateKey) ? null : Convert.FromHexString(privateKey);
+    }
+
+    public static Signing Create(string privateKey)
+    {
+        return new Signing(privateKey);
+    }
+
+    public static Signing Create()
+    {
+        return new Signing();
+    }
+
+    public bool Verify(string signature,string hash, string publicKey)
+    {
+        return VerifySignature(
+            Convert.FromHexString(signature),
+            Convert.FromBase64String(hash),
+            Convert.FromHexString(publicKey),
+            HashAlgorithmName.SHA256);
+    }
+
+    public string Sign(string hash)
+    {
+        if (_privateKey == null || _privateKey.Length == 0)
+        {
+            throw new InvalidOperationException("Private key is not set or is empty.");
+        }
+
+        var message = Convert.FromBase64String(hash);
+        var signature = SignData(message, _privateKey, HashAlgorithmName.SHA256);
+        return Convert.ToHexString(signature);
+    }
+}
+
 public class Transaction(string fromAddress, string toAddress, decimal amount) : ITransact
 {
-    private class Signing : EcdsaKeyGenerator
-    {
-        private readonly byte[]? _privateKey;
-
-        private Signing(string? privateKey = null)
-        {
-            _privateKey = string.IsNullOrEmpty(privateKey) ? null : Convert.FromHexString(privateKey);
-        }
-
-        public static Signing Create(string privateKey)
-        {
-            return new Signing(privateKey);
-        }
-
-        public static Signing Create()
-        {
-            return new Signing();
-        }
-
-        public bool Verify(string signature,string hash, string publicKey)
-        {
-            return VerifySignature(
-                Convert.FromHexString(signature),
-                Convert.FromBase64String(hash),
-                Convert.FromHexString(publicKey),
-                HashAlgorithmName.SHA256);
-        }
-
-        public string Sign(string hash)
-        {
-            if (_privateKey == null || _privateKey.Length == 0)
-            {
-                throw new InvalidOperationException("Private key is not set or is empty.");
-            }
-
-            var message = Convert.FromBase64String(hash);
-            var signature = SignData(message, _privateKey, HashAlgorithmName.SHA256);
-            return Convert.ToHexString(signature);
-        }
-    }
     public string FromAddress { get; private set; } = fromAddress;
     public string ToAddress { get; private set; } = toAddress;
     public decimal Amount { get; private set; } = amount;
