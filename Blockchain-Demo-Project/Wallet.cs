@@ -14,6 +14,8 @@ internal class EcdsaKeyGenerator : KeyGenerator
 {
     private const string CurveName = "secp256k1";
 
+    // Generates a new key pair using the secp256k1 curve.
+    // Returns a tuple containing the public key and private key in byte arrays.
     public override (byte[] publicKey, byte[] privateKey) GenerateKeyPair()
     {
         using var ecdsa = ECDsa.Create(ECCurve.CreateFromFriendlyName(CurveName));
