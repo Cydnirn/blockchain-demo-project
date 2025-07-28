@@ -10,8 +10,8 @@ while (true)
     if (wallet != null)
     {
         var miner = Miner.Create(wallet.PublicKey);
-        miner.MineBlock(blockchain);
-        Console.WriteLine("Initial mining completed. Wallet balance updated.");
+        Thread minerThread = new Thread(() => miner.MineBlock(blockchain));
+        minerThread.Start();
     }
 
     Console.Clear();
@@ -22,7 +22,7 @@ while (true)
     Console.WriteLine("3. Delete the current wallet");
     Console.WriteLine("4. Send a transaction");
     Console.WriteLine("5. See Balance");
-
+    Console.WriteLine("6. View Blockchain");
     Console.WriteLine("Press 'q' to quit or any other key to continue...");
     var input = Console.ReadKey(true).KeyChar;
     switch (input)
@@ -110,8 +110,6 @@ while (true)
                 Thread minerThred = new Thread(() => miner.MineBlock(blockchain));
                 Console.ReadKey();
                 minerThred.Start();
-                minerThred.Join();
-                Console.WriteLine("Block mined successfully!");
             }
             catch (Exception ex)
             {
@@ -127,6 +125,27 @@ while (true)
                 break;
             }
             Console.WriteLine("Balance for wallet: " + blockchain.GetBalance(wallet.PublicKey));
+            Console.ReadKey();
+            break;
+        case '6':
+            var chain = blockchain.GetChain();
+            if(chain.Count == 0)
+            {
+                Console.WriteLine("Blockchain is empty.");
+            }
+            foreach (var block in chain)
+            {
+                Console.WriteLine("-- Block --");
+                Console.WriteLine($"Block Hash: {block.Hash}");
+                Console.WriteLine($"Previous Hash: {block.PreviousHash}");
+                Console.WriteLine($"Nonce: {block.Nonce}");
+                Console.WriteLine("Transactions:");
+                foreach (var tx in block.Transactions)
+                {
+                    Console.WriteLine($"  From: {tx.FromAddress}, To: {tx.ToAddress}, Amount: {tx.Amount}, Signature: {tx.Signature}");
+                }
+                Console.WriteLine("-------------------");
+            }
             Console.ReadKey();
             break;
     }

@@ -5,11 +5,11 @@ namespace Blockchain_Demo_Project;
 
 public class Block(string previousHash, List<ITransact> transactions)
 {
-    private string PreviousHash { get; set; } = previousHash;
+    public string PreviousHash { get; } = previousHash;
     public string Hash { get; set; } = "0"; // Default hash value, will be updated after mining
-    private string Timestamp { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-    public List<ITransact> Transactions { get; set; } = transactions;
-    public int Nonce { get; set; } = 0;
+    private string Timestamp { get; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+    public List<ITransact> Transactions { get; } = [..transactions];
+    public int Nonce { get; set; }
 
 
     public string GenerateHash()
@@ -53,9 +53,19 @@ public class Blockchain
         return Chain.Last();
     }
 
+    public List<Block> GetChain()
+    {
+        return Chain;
+    }
+
     public List<ITransact> GetPendingTransactions()
     {
         return PendingTransactions;
+    }
+
+    public void ClearPendingTransactions()
+    {
+        PendingTransactions.Clear();
     }
 
     public void AddBlock(Block block)
@@ -74,13 +84,13 @@ public class Blockchain
 
         if (transaction.Amount <= 0)
             throw new ArgumentException("Transaction amount must be greater than zero.", nameof(transaction.Amount));
-        if (!transaction.VerifySignature())
-            throw new InvalidOperationException("Transaction signature is invalid.");
         if (transaction.FromAddress == "System")
         {
             PendingTransactions.Add(transaction);
             return; // System transactions (like mining rewards) do not require balance checks
         }
+        if (!transaction.VerifySignature())
+            throw new InvalidOperationException("Transaction signature is invalid.");
         if (GetBalance(transaction.FromAddress) < transaction.Amount)
             throw new InvalidOperationException("Insufficient balance for the transaction.");
 
@@ -99,14 +109,8 @@ public class Blockchain
     {
         if (string.IsNullOrEmpty(address)) throw new ArgumentException("Address cannot be null or empty.", nameof(address));
 
-        var balance = Chain.Where(b => b.Transactions.Any(t => t.FromAddress == address || t.ToAddress == address))
-            .Sum(b => b.Transactions
-                .Where(t => t.ToAddress == address)
-                .Sum(t => t.Amount) -
-                b.Transactions
-                .Where(t => t.FromAddress == address)
-                .Sum(t => t.Amount));
-        /*foreach (var block in Chain)
+        var balance = 0m;
+        foreach (var block in Chain)
         {
             foreach (var transaction in block.Transactions)
             {
@@ -119,7 +123,7 @@ public class Blockchain
                     balance -= transaction.Amount;
                 }
             }
-        }*/
+        }
         return balance;
     }
 }

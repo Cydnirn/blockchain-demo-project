@@ -16,7 +16,8 @@ public class Miner(string walletAddress)
     {
         if (blockchain.GetPendingTransactions().Count == 0)
         {
-            throw new InvalidOperationException("No transactions to mine.");
+            Console.WriteLine("No pending transactions to mine.");
+            return;
         }
 
         var rewardTransaction = new MinerTransaction( WalletAddress, blockchain.MiningReward);
@@ -36,5 +37,6 @@ public class Miner(string walletAddress)
 
         // Add the mined block to the blockchain
         blockchain.AddBlock(newBlock);
+        blockchain.ClearPendingTransactions();
     }
 }
