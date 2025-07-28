@@ -134,7 +134,7 @@ while (true)
             Console.ReadKey();
             break;
         case '6':
-            var chain = blockchain.GetChain();
+            var chain = blockchain.GetChain;
             if(chain.Count == 0)
             {
                 Console.WriteLine("Blockchain is empty.");

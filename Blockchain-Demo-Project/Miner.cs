@@ -14,7 +14,7 @@ public class Miner(string walletAddress) : IMiner
     // Method to mine a new block and add it to the blockchain
     public void MineBlock(Blockchain blockchain)
     {
-        if (blockchain.GetPendingTransactions().Count == 0)
+        if (blockchain.GetPendingTransactions.Count == 0)
         {
             Console.WriteLine("No pending transactions to mine.");
             return;
@@ -26,7 +26,7 @@ public class Miner(string walletAddress) : IMiner
         blockchain.AddTransaction(rewardTransaction);
 
         var previousBlock = blockchain.GetLatestBlock();
-        var newBlock = new Block(previousBlock.Hash, blockchain.GetPendingTransactions());
+        var newBlock = new Block(previousBlock.Hash, blockchain.GetPendingTransactions);
 
         // Simulate mining by finding a valid nonce
         while (!newBlock.Hash.StartsWith(new string('0', blockchain.Difficulty)))

@@ -5,9 +5,11 @@ namespace Blockchain_Demo_Project;
 public class Blockchain
 {
     private List<IBlock> Chain {get;  } = new();
+    public IReadOnlyList<IBlock> GetChain => Chain.AsReadOnly();
     public int Difficulty { get; private set; } = 2;
     public decimal MiningReward { get; private set; } = 100;
     private List<ITransact> PendingTransactions { get;  } = new();
+    public IReadOnlyList<ITransact> GetPendingTransactions => PendingTransactions.AsReadOnly();
 
     public Blockchain()
     {
@@ -25,16 +27,6 @@ public class Blockchain
     public IBlock GetLatestBlock()
     {
         return Chain.Last();
-    }
-
-    public IReadOnlyList<IBlock> GetChain()
-    {
-        return Chain.AsReadOnly();
-    }
-
-    public IReadOnlyList<ITransact> GetPendingTransactions()
-    {
-        return PendingTransactions.AsReadOnly();
     }
 
     private void ClearPendingTransactions()
