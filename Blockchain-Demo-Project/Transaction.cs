@@ -1,48 +1,8 @@
 using System.Security.Cryptography;
 using Blockchain_Demo_Project.Interfaces;
+using Blockchain_Demo_Project.Services;
 
 namespace Blockchain_Demo_Project;
-
-internal class Signing : EcdsaKeyGenerator, ISigningService
-{
-    private readonly byte[]? _privateKey;
-
-    private Signing(string? privateKey = null)
-    {
-        _privateKey = string.IsNullOrEmpty(privateKey) ? null : Convert.FromHexString(privateKey);
-    }
-
-    public static Signing Create(string privateKey)
-    {
-        return new Signing(privateKey);
-    }
-
-    public static Signing Create()
-    {
-        return new Signing();
-    }
-
-    public bool Verify(string signature,string hash, string publicKey)
-    {
-        return VerifySignature(
-            Convert.FromHexString(signature),
-            Convert.FromBase64String(hash),
-            Convert.FromHexString(publicKey),
-            HashAlgorithmName.SHA256);
-    }
-
-    public string Sign(string hash)
-    {
-        if (_privateKey == null || _privateKey.Length == 0)
-        {
-            throw new InvalidOperationException("Private key is not set or is empty.");
-        }
-
-        var message = Convert.FromBase64String(hash);
-        var signature = SignData(message, _privateKey, HashAlgorithmName.SHA256);
-        return Convert.ToHexString(signature);
-    }
-}
 
 public class Transaction(string fromAddress, string toAddress, decimal amount) : ITransact
 {
@@ -64,7 +24,7 @@ public class Transaction(string fromAddress, string toAddress, decimal amount) :
             {
                 throw new ArgumentException("Private key cannot be null or empty.", nameof(privateKey));
             }
-            var signing = Signing.Create(privateKey);
+            var signing = SigningService.Create(privateKey);
             var hash = CalculateHash();
 
             Signature = signing.Sign(hash);
@@ -88,7 +48,7 @@ public class Transaction(string fromAddress, string toAddress, decimal amount) :
             {
                 throw new InvalidOperationException("Signature is not set or is empty.");
             }
-            var signing = Signing.Create();
+            var signing = SigningService.Create();
             return signing.Verify(Signature, CalculateHash(), FromAddress);
         }
         catch (Exception ex)

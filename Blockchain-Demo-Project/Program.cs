@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Blockchain_Demo_Project;
+using Blockchain_Demo_Project.Services;
 
 Wallet? wallet = null;
 var blockchain = new Blockchain();
@@ -171,7 +172,7 @@ void GetChain()
 
 while (true)
 {
-    //Initiate the first WiwokCoin wallet
+    //Initiate the first wallet if it exists
     if (wallet != null)
     {
         service.InitializeBlockchain(wallet.PublicKey);
