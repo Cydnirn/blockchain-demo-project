@@ -45,10 +45,10 @@ public class Transaction(string fromAddress, string toAddress, decimal amount) :
             return Convert.ToHexString(signature);
         }
     }
-    public string FromAddress { get; set; } = fromAddress;
-    public string ToAddress { get; set; } = toAddress;
-    public decimal Amount { get; set; } = amount;
-    public string TimeStamp { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+    public string FromAddress { get; private set; } = fromAddress;
+    public string ToAddress { get; private set; } = toAddress;
+    public decimal Amount { get; private set; } = amount;
+    public string TimeStamp { get; private set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
     public string Signature { get; private set; } = string.Empty;
     public string CalculateHash()
     {

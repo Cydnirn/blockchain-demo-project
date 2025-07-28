@@ -4,13 +4,13 @@ using Blockchain_Demo_Project.Interfaces;
 namespace Blockchain_Demo_Project;
 
 
-public class Block(string previousHash, List<ITransact> transactions) : IBlock
+public class Block(string previousHash, IReadOnlyList<ITransact> transactions) : IBlock
 {
     public string PreviousHash { get; } = previousHash;
     public string Hash { get; private set; } = "0"; // Default hash value, will be updated after mining
     private string Timestamp { get; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
     private List<ITransact> Transactions { get; } = [..transactions];
-    public IReadOnlyList<ITransact> TransactionsReadOnly { get; } = [..transactions.AsReadOnly()];
+    public IReadOnlyList<ITransact> TransactionsReadOnly { get; } = [..transactions];
     public int Nonce { get; set; }
 
 

@@ -4,10 +4,10 @@ namespace Blockchain_Demo_Project;
 
 public class Blockchain
 {
-    private List<IBlock> Chain {get; } = new();
-    public int Difficulty { get; } = 2;
+    private List<IBlock> Chain {get;  } = new();
+    public int Difficulty { get; private set; } = 2;
     public decimal MiningReward { get; private set; } = 100;
-    private List<ITransact> PendingTransactions { get; set; } = new();
+    private List<ITransact> PendingTransactions { get;  } = new();
 
     public Blockchain()
     {
@@ -29,12 +29,12 @@ public class Blockchain
 
     public IReadOnlyList<IBlock> GetChain()
     {
-        return Chain;
+        return Chain.AsReadOnly();
     }
 
-    public List<ITransact> GetPendingTransactions()
+    public IReadOnlyList<ITransact> GetPendingTransactions()
     {
-        return PendingTransactions;
+        return PendingTransactions.AsReadOnly();
     }
 
     private void ClearPendingTransactions()
@@ -51,55 +51,60 @@ public class Blockchain
         ClearPendingTransactions();
     }
 
-    public void AddTransaction(ITransact transaction)
+    private bool VerifyTransaction(ITransact transaction)
     {
-        if (transaction == null) throw new ArgumentNullException(nameof(transaction));
-        if (string.IsNullOrEmpty(transaction.FromAddress) || string.IsNullOrEmpty(transaction.ToAddress))
-            throw new ArgumentException("Transaction must have valid From and To addresses.");
-
-        if (transaction.Amount <= 0)
-            throw new ArgumentException("Transaction amount must be greater than zero.", nameof(transaction.Amount));
-        if (transaction.FromAddress == "System")
+        try
         {
-            PendingTransactions.Add(transaction);
-            return; // System transactions (like mining rewards) do not require balance checks
-        }
-        if (!transaction.VerifySignature())
-            throw new InvalidOperationException("Transaction signature is invalid.");
-        if (GetBalance(transaction.FromAddress) < transaction.Amount)
-            throw new InvalidOperationException("Insufficient balance for the transaction.");
+            if (transaction.FromAddress == "System")
+            {
+                return true; // System transactions (like mining rewards) do not require balance checks
+            }
+            ArgumentNullException.ThrowIfNull(transaction);
+            if (string.IsNullOrEmpty(transaction.FromAddress) || string.IsNullOrEmpty(transaction.ToAddress))
+                throw new ArgumentException("Transaction must have valid From and To addresses.");
+            if (transaction.Amount <= 0)
+                throw new ArgumentException("Transaction amount must be greater than zero.", nameof(transaction.Amount));
+            if (!transaction.VerifySignature())
+                throw new InvalidOperationException("Transaction signature is invalid.");
+            if (GetBalance(transaction.FromAddress) < transaction.Amount)
+                throw new InvalidOperationException("Insufficient balance for the transaction.");
 
-        var pendingTx = PendingTransactions.FindAll(t => t.FromAddress == transaction.FromAddress);
-        if (pendingTx.Count > 0)
-        {
+            var pendingTx = PendingTransactions.FindAll(t => t.FromAddress == transaction.FromAddress);
+            if(pendingTx.Count < 0)
+                throw new InvalidOperationException("No pending transactions found for the sender address.");
             var totalPendingAmount = PendingTransactions
                 .Sum(t => t.Amount);
             if (totalPendingAmount + transaction.Amount > GetBalance(transaction.FromAddress))
                 throw new InvalidOperationException("Insufficient balance for the transaction.");
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+    }
+
+    public void AddTransaction(ITransact transaction)
+    {
+        var verify = VerifyTransaction(transaction);
+        if (!verify)
+        {
+            throw new InvalidOperationException("Transaction verification failed.");
         }
         PendingTransactions.Add(transaction);
     }
 
+    private decimal CalculateAddressBalance(string address) =>
+        Chain.SelectMany(block => block.TransactionsReadOnly)
+            .Sum(transaction =>
+                (transaction.ToAddress == address ? transaction.Amount : 0) -
+                (transaction.FromAddress == address ? transaction.Amount : 0));
+
     public decimal GetBalance(string address)
     {
         if (string.IsNullOrEmpty(address)) throw new ArgumentException("Address cannot be null or empty.", nameof(address));
-
-        var balance = 0m;
-        foreach (var block in Chain)
-        {
-            foreach (var transaction in block.TransactionsReadOnly)
-            {
-                if (transaction.ToAddress == address)
-                {
-                    balance += transaction.Amount;
-                }
-                if (transaction.FromAddress == address)
-                {
-                    balance -= transaction.Amount;
-                }
-            }
-        }
-        return balance;
+        return CalculateAddressBalance(address);
     }
 }
 
