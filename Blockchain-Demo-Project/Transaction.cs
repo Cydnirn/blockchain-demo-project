@@ -60,7 +60,7 @@ public class Transaction(string fromAddress, string toAddress, decimal amount) :
     }
 }
 
-public class MinerTransaction(string toAddress, decimal amount) : Transaction("System", toAddress, amount)
+public class RewardTransaction(string toAddress, decimal amount) : Transaction("System", toAddress, amount)
 {
     public override bool VerifySignature()
     {

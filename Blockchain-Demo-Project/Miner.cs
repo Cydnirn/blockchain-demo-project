@@ -20,7 +20,7 @@ public class Miner(string walletAddress) : IMiner
             return;
         }
 
-        var rewardTransaction = new MinerTransaction( WalletAddress, blockchain.MiningReward);
+        var rewardTransaction = new RewardTransaction( WalletAddress, blockchain.MiningReward);
 
         //Add the mining reward transaction to the pending transactions
         blockchain.AddTransaction(rewardTransaction);
