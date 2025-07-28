@@ -5,6 +5,8 @@ Wallet? wallet = null;
 var blockchain = new Blockchain();
 var firstIteration = true;
 
+var service = BlockchainService.Create(blockchain);
+
 while (true)
 {
     //Initiate the first WiwokCoin wallet
@@ -38,7 +40,7 @@ while (true)
             }
             wallet = Wallet.Create();
             Console.WriteLine("New wallet created with Public Key: " + wallet.PublicKey);
-            Console.WriteLine("Private Key: " + wallet.PrivateKey);
+            Console.WriteLine("Private Key: " + wallet.GetPrivateKey());
             Console.ReadKey();
             break;
         case '2':
@@ -59,7 +61,7 @@ while (true)
                 wallet = Wallet.Export(privateKey);
                 Console.WriteLine("Wallet exported successfully!");
                 Console.WriteLine("Public Key: " + wallet.PublicKey);
-                Console.WriteLine("Private Key: " + wallet.PrivateKey);
+                Console.WriteLine("Private Key: " + wallet.GetPrivateKey());
             } catch (Exception ex)
             {
                 Console.WriteLine("Error exporting wallet: " + ex.Message);
@@ -109,15 +111,11 @@ while (true)
                 break;
             }
             var transaction = new Transaction(wallet.PublicKey, toAddress, amount);
-            transaction.SignTransaction(wallet.PrivateKey);
             try
             {
-                blockchain.AddTransaction(transaction);
+                service.AddTransaction(transaction, wallet.GetPrivateKey());
                 Console.WriteLine("Transaction added successfully!");
-                var miner = Miner.Create(wallet.PublicKey);
-                var minerThread = new Thread(() => miner.MineBlock(blockchain));
                 Console.ReadKey();
-                minerThread.Start();
             }
             catch (Exception ex)
             {
@@ -132,7 +130,7 @@ while (true)
                 Console.ReadKey();
                 break;
             }
-            Console.WriteLine("Balance for wallet: " + blockchain.GetBalance(wallet.PublicKey));
+            Console.WriteLine("Balance for wallet: " + service.GetBalance(wallet.PublicKey));
             Console.ReadKey();
             break;
         case '6':

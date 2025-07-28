@@ -73,7 +73,7 @@ internal class EcdsaKeyGenerator : KeyGenerator
 public class Wallet(string publicKey, string privateKey)
 {
     public string PublicKey { get; } = publicKey;
-    public string PrivateKey { get; } = privateKey;
+    private string PrivateKey { get; } = privateKey;
 
     internal static Wallet Create()
     {
@@ -87,6 +87,15 @@ public class Wallet(string publicKey, string privateKey)
         var keyGenerator = new EcdsaKeyGenerator();
         var factory = new WalletFactory(keyGenerator);
         return factory.ExportWallet(privateKey);
+    }
+
+    public string GetPrivateKey()
+    {
+        if (string.IsNullOrEmpty(PrivateKey))
+        {
+            throw new InvalidOperationException("Private key is not set or is empty.");
+        }
+        return PrivateKey;
     }
 }
 

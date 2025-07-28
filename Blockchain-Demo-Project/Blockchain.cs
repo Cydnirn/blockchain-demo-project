@@ -1,37 +1,10 @@
 using Blockchain_Demo_Project.Interfaces;
-using System.Security.Cryptography;
 
 namespace Blockchain_Demo_Project;
 
-public class Block(string previousHash, List<ITransact> transactions)
-{
-    public string PreviousHash { get; } = previousHash;
-    public string Hash { get; set; } = "0"; // Default hash value, will be updated after mining
-    private string Timestamp { get; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-    private List<ITransact> Transactions { get; } = [..transactions];
-    public readonly IReadOnlyList<ITransact> TransactionsReadOnly = [..transactions.AsReadOnly()];
-    public int Nonce { get; set; }
-
-
-    public string GenerateHash()
-    {
-        // Concatenate the previous hash, timestamp, nonce, and transaction signatures to create a unique hash for the block
-        return Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(PreviousHash + Timestamp + Nonce + string.Join("", Transactions.Select(t => t.Signature)))));
-    }
-
-    public bool ValidBlock()
-    {
-        foreach (var transaction in TransactionsReadOnly)
-        {
-            if(!transaction.VerifySignature()) return false;
-        }
-        return true;
-    }
-}
-
 public class Blockchain
 {
-    private List<Block> Chain {get; } = new();
+    private List<IBlock> Chain {get; } = new();
     public int Difficulty { get; } = 2;
     public decimal MiningReward { get; private set; } = 100;
     private List<ITransact> PendingTransactions { get; set; } = new();
@@ -49,12 +22,12 @@ public class Blockchain
         return new Block("0", PendingTransactions);
     }
 
-    public Block GetLatestBlock()
+    public IBlock GetLatestBlock()
     {
         return Chain.Last();
     }
 
-    public List<Block> GetChain()
+    public IReadOnlyList<IBlock> GetChain()
     {
         return Chain;
     }
@@ -127,5 +100,44 @@ public class Blockchain
             }
         }
         return balance;
+    }
+}
+
+public class BlockchainService(Blockchain blockchain) : IBlockchainService
+{
+    private Blockchain Blockchain { get; } = blockchain;
+    private static BlockchainService? _instance;
+
+    public static BlockchainService Create(Blockchain blockchain)
+    {
+        if (_instance != null) return _instance;
+
+        lock (typeof(BlockchainService))
+        {
+            _instance ??= new BlockchainService(blockchain);
+        }
+
+        return _instance;
+    }
+
+    private void ExecuteMiner(string address)
+    {
+        var miner = Miner.Create(address);
+        var minerThread = new Thread(() => miner.MineBlock(Blockchain));
+        minerThread.Start();
+    }
+
+    public void AddTransaction(ITransact transaction, string privateKey)
+    {
+        if (transaction == null) throw new ArgumentNullException(nameof(transaction));
+        if (string.IsNullOrEmpty(privateKey)) throw new ArgumentException("Private key cannot be null or empty.", nameof(privateKey));
+        transaction.SignTransaction(privateKey);
+        Blockchain.AddTransaction(transaction);
+        ExecuteMiner(transaction.FromAddress);
+    }
+
+    public decimal GetBalance(string walletAddress)
+    {
+        return Blockchain.GetBalance(walletAddress);
     }
 }

@@ -32,7 +32,7 @@ public class Miner(string walletAddress) : IMiner
         while (!newBlock.Hash.StartsWith(new string('0', blockchain.Difficulty)))
         {
             newBlock.Nonce++;
-            newBlock.Hash = newBlock.GenerateHash();
+            newBlock.GenerateHash();
         }
 
         // Add the mined block to the blockchain
