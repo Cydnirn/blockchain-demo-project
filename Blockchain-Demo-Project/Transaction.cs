@@ -49,7 +49,7 @@ public class Transaction(string fromAddress, string toAddress, decimal amount) :
     public string ToAddress { get; set; } = toAddress;
     public decimal Amount { get; set; } = amount;
     public string TimeStamp { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-    public string Signature { get; set; } = string.Empty;
+    public string Signature { get; private set; } = string.Empty;
     public string CalculateHash()
     {
         return Convert.ToBase64String(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes($"{FromAddress}:{ToAddress}:{Amount}:{TimeStamp}")));
@@ -99,15 +99,8 @@ public class Transaction(string fromAddress, string toAddress, decimal amount) :
     }
 }
 
-public class MinerTransaction : Transaction
+public class MinerTransaction(string toAddress, decimal amount) : Transaction("System", toAddress, amount)
 {
-    public MinerTransaction(string toAddress, decimal amount) : base("System", toAddress, amount)
-    {
-        // Miner transactions are typically created with a fixed "from" address of "Miner"
-        // and a specified "to" address and amount.
-        Signature = string.Empty;
-    }
-
     public override bool VerifySignature()
     {
         // Miner transactions do not require signature verification

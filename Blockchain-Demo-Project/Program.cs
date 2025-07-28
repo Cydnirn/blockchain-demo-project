@@ -148,7 +148,7 @@ while (true)
                 Console.WriteLine($"Previous Hash: {block.PreviousHash}");
                 Console.WriteLine($"Nonce: {block.Nonce}");
                 Console.WriteLine("Transactions:");
-                foreach (var tx in block.Transactions)
+                foreach (var tx in block.TransactionsReadOnly)
                 {
                     Console.WriteLine($"  From: {tx.FromAddress}, To: {tx.ToAddress}, Amount: {tx.Amount}, Signature: {tx.Signature}");
                 }

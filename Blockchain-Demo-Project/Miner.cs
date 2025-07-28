@@ -2,7 +2,7 @@ using Blockchain_Demo_Project.Interfaces;
 
 namespace Blockchain_Demo_Project;
 
-public class Miner(string walletAddress)
+public class Miner(string walletAddress) : IMiner
 {
     private string WalletAddress { get; } = walletAddress;
 

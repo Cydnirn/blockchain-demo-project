@@ -8,7 +8,8 @@ public class Block(string previousHash, List<ITransact> transactions)
     public string PreviousHash { get; } = previousHash;
     public string Hash { get; set; } = "0"; // Default hash value, will be updated after mining
     private string Timestamp { get; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-    public List<ITransact> Transactions { get; } = [..transactions];
+    private List<ITransact> Transactions { get; } = [..transactions];
+    public readonly IReadOnlyList<ITransact> TransactionsReadOnly = [..transactions.AsReadOnly()];
     public int Nonce { get; set; }
 
 
@@ -20,7 +21,7 @@ public class Block(string previousHash, List<ITransact> transactions)
 
     public bool ValidBlock()
     {
-        foreach (var transaction in Transactions)
+        foreach (var transaction in TransactionsReadOnly)
         {
             if(!transaction.VerifySignature()) return false;
         }
@@ -113,7 +114,7 @@ public class Blockchain
         var balance = 0m;
         foreach (var block in Chain)
         {
-            foreach (var transaction in block.Transactions)
+            foreach (var transaction in block.TransactionsReadOnly)
             {
                 if (transaction.ToAddress == address)
                 {
