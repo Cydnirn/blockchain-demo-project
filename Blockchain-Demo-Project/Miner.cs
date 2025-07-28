@@ -4,7 +4,7 @@ namespace Blockchain_Demo_Project;
 
 public class Miner(string walletAddress)
 {
-    public string WalletAddress { get; } = walletAddress;
+    private string WalletAddress { get; } = walletAddress;
 
     public static Miner Create(string walletAddress)
     {
@@ -37,6 +37,5 @@ public class Miner(string walletAddress)
 
         // Add the mined block to the blockchain
         blockchain.AddBlock(newBlock);
-        blockchain.ClearPendingTransactions();
     }
 }

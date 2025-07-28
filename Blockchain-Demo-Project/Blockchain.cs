@@ -63,7 +63,7 @@ public class Blockchain
         return PendingTransactions;
     }
 
-    public void ClearPendingTransactions()
+    private void ClearPendingTransactions()
     {
         PendingTransactions.Clear();
     }
@@ -74,6 +74,7 @@ public class Blockchain
         if (!block.ValidBlock()) throw new InvalidOperationException("Invalid block.");
 
         Chain.Add(block);
+        ClearPendingTransactions();
     }
 
     public void AddTransaction(ITransact transaction)
