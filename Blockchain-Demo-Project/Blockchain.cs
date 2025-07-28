@@ -34,10 +34,10 @@ public class Blockchain
         PendingTransactions.Clear();
     }
 
-    public void AddBlock(Block block)
+    public void AddBlock(IBlock block)
     {
         if (block == null) throw new ArgumentNullException(nameof(block));
-        if (!block.ValidBlock()) throw new InvalidOperationException("Invalid block.");
+        if (!block.ValidBlock(Difficulty)) throw new InvalidOperationException("Invalid block.");
 
         Chain.Add(block);
         ClearPendingTransactions();

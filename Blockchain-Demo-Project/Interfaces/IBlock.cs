@@ -7,5 +7,5 @@ public interface IBlock
     public IReadOnlyList<ITransact> TransactionsReadOnly { get; }
     public int Nonce { get; set; }
     public void GenerateHash();
-    public bool ValidBlock();
+    public bool ValidBlock(int difficulty);
 }
