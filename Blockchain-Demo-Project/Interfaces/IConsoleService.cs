@@ -3,6 +3,7 @@ namespace Blockchain_Demo_Project.Interfaces;
 public interface IConsoleService
 {
     public IWallet? GetWallet();
+    public static abstract IConsoleService Create(IBlockchainService service, Chains network);
     public void InitializeChains();
     public void SelectChain();
     public void CreateWallet();

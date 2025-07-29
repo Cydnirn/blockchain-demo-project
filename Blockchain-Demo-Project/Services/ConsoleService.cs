@@ -6,19 +6,44 @@ public class ConsoleService(IBlockchainService svc, Chains network) : IConsoleSe
 {
     private IBlockchainService Service { get; set; } = svc;
     private IWallet? WalletSelf { get; set; }
+
+    private struct ChainInitializer
+    {
+        public bool MainnetInitialized { get; set; }
+        public bool TestnetInitialized { get; set; }
+    }
+
+    private ChainInitializer _chainInitializer;
     private static ConsoleService? _instance;
     public static IConsoleService Create(IBlockchainService service, Chains network)
     {
         _instance ??= new ConsoleService(service, network);
         return _instance;
     }
+    private bool GetInitializer()
+    {
+        return Service.GetChainName() == "Main Chain" ? _chainInitializer.MainnetInitialized : _chainInitializer.TestnetInitialized;
+    }
+    private void SetInitializer(bool value)
+    {
+        if (Service.GetChainName() == "Main Chain")
+        {
+            _chainInitializer.MainnetInitialized = value;
+        }
+        else
+        {
+            _chainInitializer.TestnetInitialized = value;
+        }
+    }
 
     public void InitializeChains()
     {
-        if (WalletSelf != null)
+        if (WalletSelf == null || GetInitializer())
         {
-            Service.InitializeBlockchain(WalletSelf.PublicKey);
+            return;
         }
+        Service.InitializeBlockchain(WalletSelf.PublicKey);
+        SetInitializer(true);
     }
 
     public IWallet? GetWallet()

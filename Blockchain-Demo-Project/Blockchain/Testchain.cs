@@ -48,7 +48,7 @@ public class TestChain : BlockchainBase
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.WriteLine("Error verifying transaction: " + e.Message);
             return false;
         }
     }
@@ -65,7 +65,7 @@ public class TestChain : BlockchainBase
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.WriteLine("Error adding transaction: " + e.Message);
             throw;
         }
     }
@@ -97,7 +97,7 @@ public class TestChain : BlockchainBase
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.WriteLine("Blockchain validation failed: " + e.Message);
             return false;
         }
     }
