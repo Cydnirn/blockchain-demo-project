@@ -1,8 +1,9 @@
 using Blockchain_Demo_Project.Interfaces;
+using Blockchain_Demo_Project.Blockchain;
 
 namespace Blockchain_Demo_Project;
 
-public class Miner(string walletAddress)
+public class Miner(string walletAddress) : IMiner
 {
     private string WalletAddress { get; } = walletAddress;
 
@@ -12,7 +13,7 @@ public class Miner(string walletAddress)
     }
 
     // Method to mine a new block and add it to the blockchain
-    public void MineBlock(Blockchain blockchain)
+    public void MineBlock(IBlockchain blockchain)
     {
         if (blockchain.GetPendingTransactions().Count == 0)
         {
@@ -20,7 +21,7 @@ public class Miner(string walletAddress)
             return;
         }
 
-        var rewardTransaction = new MinerTransaction( WalletAddress, blockchain.MiningReward);
+        var rewardTransaction = new RewardTransaction( WalletAddress, blockchain.GetMiningReward());
 
         //Add the mining reward transaction to the pending transactions
         blockchain.AddTransaction(rewardTransaction);
@@ -31,8 +32,8 @@ public class Miner(string walletAddress)
         // Simulate mining by finding a valid nonce
         while (!newBlock.Hash.StartsWith(new string('0', blockchain.Difficulty)))
         {
-            newBlock.Nonce++;
-            newBlock.Hash = newBlock.GenerateHash();
+            newBlock.IncrementNonce();
+            newBlock.GenerateHash();
         }
 
         // Add the mined block to the blockchain
