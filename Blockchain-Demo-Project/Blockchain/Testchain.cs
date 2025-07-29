@@ -15,41 +15,16 @@ public class TestChain : BlockchainBase
     {
         Initiate();
     }
-    protected override Block CreateGenesisBlock()
-    {
-        // Create the first block in the blockchain with a default previous hash of "0"
-        var genesisTransaction = new Transaction("System", "0", 1);
-        PendingTransactions.Add(genesisTransaction);
-        return new Block("0", PendingTransactions);
-    }
     protected override List<ITransact> PendingTransactions { get;  } = new();
     public override IReadOnlyList<ITransact> GetPendingTransactions() => PendingTransactions.AsReadOnly();
-    private List<IBlock> Chain { get;  } = new();
+    protected override List<IBlock> Chain { get;  } = new();
     public override IReadOnlyList<IBlock> GetChain() => Chain.AsReadOnly();
     public override IBlock GetLatestBlock() => Chain.AsReadOnly().LastOrDefault() ?? throw new InvalidOperationException("Blockchain is empty.");
     protected override void ClearPendingTransactions()
     {
         PendingTransactions.Clear();
     }
-    public override void AddBlock(IBlock block)
-    {
-        try
-        {
-            ArgumentNullException.ThrowIfNull(block);
-            if (!block.ValidBlock(Difficulty)) throw new InvalidOperationException("Invalid block.");
-            if (block.TransactionsReadOnly.Count == 0)
-                throw new InvalidOperationException("Block must contain at least one transaction.");
-            if (block.TransactionsReadOnly.Any(t => !VerifyTransaction(t)))
-                throw new InvalidOperationException("One or more transactions in the block are invalid.");
-            Chain.Add(block);
-            ClearPendingTransactions();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-    }
+
     //Test Chain does not require transaction signing
     protected override bool VerifyTransaction(ITransact transaction)
     {
@@ -94,12 +69,6 @@ public class TestChain : BlockchainBase
             throw;
         }
     }
-    public override decimal GetBalance(string walletAddress) =>
-        Chain.SelectMany(block => block.TransactionsReadOnly)
-            .Sum(transaction =>
-                (transaction.ToAddress == walletAddress ? transaction.Amount : 0) -
-                (transaction.FromAddress == walletAddress ? transaction.Amount : 0));
-
     public override void ValidateChain()
     {
         for (var i = 1; i < Chain.Count; i++)

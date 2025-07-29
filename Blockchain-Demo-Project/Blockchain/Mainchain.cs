@@ -5,7 +5,7 @@ namespace Blockchain_Demo_Project.Blockchain;
 public class Mainchain : BlockchainBase
 {
     public override string Name { get; protected set; } = "Main Chain";
-    private List<IBlock> Chain {get; } = new();
+    protected override List<IBlock> Chain {get; } = new();
     public override IReadOnlyList<IBlock> GetChain() => Chain.AsReadOnly();
     public override int Difficulty { get; protected set; } = 5;
     protected override decimal MiningReward { get; set; } = 50;
@@ -33,14 +33,6 @@ public class Mainchain : BlockchainBase
     protected override void ClearPendingTransactions()
     {
         PendingTransactions.Clear();
-    }
-    public override void AddBlock(IBlock block)
-    {
-        ArgumentNullException.ThrowIfNull(block);
-        if (!block.ValidBlock(Difficulty)) throw new InvalidOperationException("Invalid block.");
-
-        Chain.Add(block);
-        ClearPendingTransactions();
     }
     protected override bool VerifyTransaction(ITransact transaction)
     {
@@ -93,12 +85,6 @@ public class Mainchain : BlockchainBase
         }
         PendingTransactions.AddRange(transacts);
     }
-
-    protected override decimal CalculateAddressBalance(string address) =>
-        Chain.SelectMany(block => block.TransactionsReadOnly)
-            .Sum(transaction =>
-                (transaction.ToAddress == address ? transaction.Amount : 0) -
-                (transaction.FromAddress == address ? transaction.Amount : 0));
 
     public override decimal GetBalance(string address)
     {
