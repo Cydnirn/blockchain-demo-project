@@ -86,7 +86,7 @@ public class ConsoleService(IBlockchainService svc, Chains network) : IConsoleSe
             Console.ReadKey();
             return;
         }
-        WalletSelf = Wallet.Create();
+        WalletSelf = Wallet.Create(); //TODO: Should add dependency injection for WalletFactory
         Console.WriteLine("New wallet created with Public Key: " + WalletSelf.PublicKey);
         Console.WriteLine("Private Key: " + WalletSelf.GetPrivateKey());
         Console.ReadKey();
@@ -209,6 +209,20 @@ public class ConsoleService(IBlockchainService svc, Chains network) : IConsoleSe
                 Console.WriteLine($"  From: {tx.FromAddress}, To: {tx.ToAddress}, Amount: {tx.Amount}, Signature: {tx.Signature}");
             }
             Console.WriteLine("-------------------");
+        }
+        Console.ReadKey();
+    }
+
+    public void ValidateChain()
+    {
+        try
+        {
+            Service.IsChainValid();
+            Console.WriteLine("Blockchain is valid.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Blockchain is invalid: {ex.Message}");
         }
         Console.ReadKey();
     }

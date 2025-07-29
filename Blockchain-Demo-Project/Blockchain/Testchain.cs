@@ -48,7 +48,7 @@ public class TestChain : BlockchainBase
         }
         catch (Exception e)
         {
-            Console.WriteLine("Error verifying transaction: " + e.Message);
+            Console.WriteLine($"Error verifying transaction: {e.Message}");
             return false;
         }
     }
@@ -65,26 +65,34 @@ public class TestChain : BlockchainBase
         }
         catch (Exception e)
         {
-            Console.WriteLine("Error adding transaction: " + e.Message);
+            Console.WriteLine($"Error adding transaction: {e.Message}");
             throw;
         }
     }
     public override void ValidateChain()
     {
-        for (var i = 1; i < Chain.Count; i++)
+        try
         {
-            var currentBlock = Chain[i];
-            var previousBlock = Chain[i - 1];
-
-            if (currentBlock.PreviousHash != previousBlock.Hash)
+            for (var i = 1; i < Chain.Count; i++)
             {
-                throw new InvalidOperationException($"Invalid chain: Block {i} has an incorrect previous hash.");
-            }
+                var currentBlock = Chain[i];
+                var previousBlock = Chain[i - 1];
 
-            if (!currentBlock.ValidBlock(Difficulty))
-            {
-                throw new InvalidOperationException($"Invalid block: Block {i} is not valid.");
+                if (currentBlock.PreviousHash != previousBlock.Hash)
+                {
+                    throw new InvalidOperationException($"Invalid chain: Block {i} has an incorrect previous hash.");
+                }
+
+                if (!currentBlock.ValidBlock(Difficulty))
+                {
+                    throw new InvalidOperationException($"Invalid block: Block {i} is not valid.");
+                }
             }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error validating chain: {e.Message}");
+            throw;
         }
     }
 
@@ -97,7 +105,7 @@ public class TestChain : BlockchainBase
         }
         catch (Exception e)
         {
-            Console.WriteLine("Blockchain validation failed: " + e.Message);
+            Console.WriteLine($"Blockchain validation failed: {e.Message}");
             return false;
         }
     }

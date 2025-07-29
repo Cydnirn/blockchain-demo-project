@@ -13,4 +13,5 @@ public interface IConsoleService
     public void CheckBalance();
     public void GetChain();
     public string GetChainName();
+    public void ValidateChain();
 }

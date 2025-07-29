@@ -62,34 +62,58 @@ public class Mainchain : BlockchainBase
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.WriteLine($"Transaction verification failed: {e.Message}");
             return false;
         }
     }
 
     public override void AddTransaction(ITransact transaction)
     {
-        var verify = VerifyTransaction(transaction);
-        if (!verify)
+        try
         {
-            throw new InvalidOperationException("Transaction verification failed.");
+            var verify = VerifyTransaction(transaction);
+            if (!verify)
+            {
+                throw new InvalidOperationException("Transaction verification failed.");
+            }
+            PendingTransactions.Add(transaction);
         }
-        PendingTransactions.Add(transaction);
-    }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error adding transaction: {e.Message}");
+            throw;
+        }
+        }
 
     public override void AddTransaction(ITransact[] transacts)
     {
-        if (transacts.Any(tx => !VerifyTransaction(tx)))
+        try
         {
-            throw new InvalidOperationException("Transact verification failed.");
+            if (transacts.Any(tx => !VerifyTransaction(tx)))
+            {
+                throw new InvalidOperationException("Transact verification failed.");
+            }
+            PendingTransactions.AddRange(transacts);
         }
-        PendingTransactions.AddRange(transacts);
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error adding transactions: {e.Message}");
+            throw;
+        }
     }
 
     public override decimal GetBalance(string address)
     {
-        if (string.IsNullOrEmpty(address)) throw new ArgumentException("Address cannot be null or empty.", nameof(address));
-        return CalculateAddressBalance(address);
+        try
+        {
+            if (string.IsNullOrEmpty(address)) throw new ArgumentException("Address cannot be null or empty.", nameof(address));
+            return CalculateAddressBalance(address);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error getting balance for address {address}: {e.Message}");
+            throw;
+        }
     }
 
     public override bool IsValidChain()
