@@ -4,7 +4,7 @@ namespace Blockchain_Demo_Project.Services;
 
 public class ConsoleService(IBlockchainService svc, Chains network) : IConsoleService
 {
-    public IBlockchainService Service { get; private set; } = svc;
+    private IBlockchainService Service { get; set; } = svc;
     private IWallet? WalletSelf { get; set; }
     private static ConsoleService? _instance;
     public static IConsoleService Create(IBlockchainService service, Chains network)
@@ -186,5 +186,10 @@ public class ConsoleService(IBlockchainService svc, Chains network) : IConsoleSe
             Console.WriteLine("-------------------");
         }
         Console.ReadKey();
+    }
+
+    public string GetChainName()
+    {
+        return Service.GetChainName();
     }
 }

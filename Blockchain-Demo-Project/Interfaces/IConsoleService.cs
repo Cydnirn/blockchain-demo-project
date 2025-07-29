@@ -2,7 +2,6 @@ namespace Blockchain_Demo_Project.Interfaces;
 
 public interface IConsoleService
 {
-    public IBlockchainService Service { get; }
     public IWallet? GetWallet();
     public void InitializeChains();
     public void SelectChain();
@@ -12,5 +11,5 @@ public interface IConsoleService
     public void SendTx();
     public void CheckBalance();
     public void GetChain();
-
+    public string GetChainName();
 }

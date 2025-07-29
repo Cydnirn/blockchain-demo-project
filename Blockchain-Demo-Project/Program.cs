@@ -1,5 +1,4 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using Blockchain_Demo_Project;
 using Blockchain_Demo_Project.Services;
 using Blockchain_Demo_Project.Blockchain;
 using Blockchain_Demo_Project.Interfaces;
@@ -20,7 +19,7 @@ while (true)
     consoleService.InitializeChains();
     Console.Clear();
     Console.WriteLine("Blockchain Demo Project");
-    Console.WriteLine("Current Blockchain: " + consoleService.Service.GetChainName());
+    Console.WriteLine("Current Blockchain: " + consoleService.GetChainName());
     Console.WriteLine("Current Wallet: " + (consoleService.GetWallet() != null ? consoleService.GetWallet().PublicKey : "No wallet created"));
     Console.WriteLine("1. Create a new wallet");
     Console.WriteLine("2. Export an existing wallet");
