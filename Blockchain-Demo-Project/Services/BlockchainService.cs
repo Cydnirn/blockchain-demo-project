@@ -48,4 +48,8 @@ public class BlockchainService: IBlockchainService
     public IReadOnlyList<IBlock> GetChain() => Blockchain.GetChain();
 
     public string GetChainName() => Blockchain.Name;
+    public bool IsChainValid()
+    {
+        return Blockchain.IsValidChain();
+    }
 }

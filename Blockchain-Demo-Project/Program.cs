@@ -1,11 +1,13 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Blockchain_Demo_Project;
 using Blockchain_Demo_Project.Services;
+using Blockchain_Demo_Project.Blockchain;
+using Blockchain_Demo_Project.Interfaces;
 
 Wallet? wallet = null;
-var blockchain = new Blockchain();
+var blockchain = new Mainchain();
 var testChain = new TestChain();
-var service = BlockchainService.Create(new Blockchain());
+IBlockchainService service = BlockchainService.Create(new Mainchain());
 
 void SelectChain()
 {

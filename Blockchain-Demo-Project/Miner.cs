@@ -1,4 +1,5 @@
 using Blockchain_Demo_Project.Interfaces;
+using Blockchain_Demo_Project.Blockchain;
 
 namespace Blockchain_Demo_Project;
 
@@ -20,7 +21,7 @@ public class Miner(string walletAddress) : IMiner
             return;
         }
 
-        var rewardTransaction = new RewardTransaction( WalletAddress, blockchain.MiningReward);
+        var rewardTransaction = new RewardTransaction( WalletAddress, blockchain.GetMiningReward());
 
         //Add the mining reward transaction to the pending transactions
         blockchain.AddTransaction(rewardTransaction);

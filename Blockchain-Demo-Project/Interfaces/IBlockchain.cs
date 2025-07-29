@@ -4,7 +4,7 @@ public interface IBlockchain
 {
     public string Name { get; }
     public int Difficulty { get; }
-    public decimal MiningReward { get; }
+    public decimal GetMiningReward();
     public IReadOnlyList<ITransact> GetPendingTransactions();
     public IReadOnlyList<IBlock> GetChain();
     public IBlock GetLatestBlock();
@@ -12,4 +12,5 @@ public interface IBlockchain
     public void AddTransaction(ITransact transaction);
     public decimal GetBalance(string walletAddress);
     public void ValidateChain();
+    public bool IsValidChain();
 }

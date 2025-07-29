@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using Blockchain_Demo_Project.Interfaces;
 
-namespace Blockchain_Demo_Project;
+namespace Blockchain_Demo_Project.Blockchain;
 
 public abstract class BlockBase : IBlock
 {
@@ -9,7 +9,6 @@ public abstract class BlockBase : IBlock
     public abstract string Hash { get; protected set; }
     public abstract IReadOnlyList<ITransact> TransactionsReadOnly { get; }
     public abstract int Nonce { get; protected set; }
-
     public abstract void GenerateHash();
     public abstract bool ValidBlock(int difficulty = 2);
 }

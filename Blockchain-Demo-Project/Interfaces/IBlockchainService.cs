@@ -7,4 +7,5 @@ public interface IBlockchainService
     decimal GetBalance(string walletAddress);
     IReadOnlyList<IBlock> GetChain();
     string GetChainName();
+    bool IsChainValid();
 }
