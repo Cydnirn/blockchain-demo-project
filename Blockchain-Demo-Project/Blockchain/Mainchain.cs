@@ -4,7 +4,7 @@ namespace Blockchain_Demo_Project.Blockchain;
 
 public class Mainchain : BlockchainBase
 {
-    public override string Name { get; protected set; } = "Main Chain";
+    public override string Name { get; } = "Main Chain";
     protected override List<IBlock> Chain {get; } = new();
     public override IReadOnlyList<IBlock> GetChain() => Chain.AsReadOnly();
     public override int Difficulty { get; protected set; } = 5;

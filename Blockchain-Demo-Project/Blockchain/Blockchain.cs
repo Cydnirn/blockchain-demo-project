@@ -4,7 +4,7 @@ namespace Blockchain_Demo_Project.Blockchain;
 
 public abstract class BlockchainBase : IBlockchain
 {
-    public abstract string Name { get; protected set; }
+    public abstract string Name { get; }
     public abstract int Difficulty { get; protected set; }
     protected abstract decimal MiningReward { get; set; }
     public virtual decimal GetFee()

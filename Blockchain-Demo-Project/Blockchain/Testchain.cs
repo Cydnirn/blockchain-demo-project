@@ -4,7 +4,7 @@ namespace Blockchain_Demo_Project.Blockchain;
 
 public class TestChain : BlockchainBase
 {
-    public override string Name { get; protected set; } = "Test Chain";
+    public override string Name { get; } = "Test Chain";
     public override int Difficulty { get; protected set; } = 5;
     protected override decimal MiningReward { get; set; } = 100;
     private void Initiate()

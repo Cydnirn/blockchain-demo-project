@@ -10,8 +10,8 @@ var chains = new Chains
     Mainnet = blockchain,
     Testnet = testChain
 };
-IBlockchainService service = BlockchainService.Create(chains.Mainnet);
-IConsoleService consoleService = ConsoleService.Create(service, chains);
+var service = BlockchainService.Create(chains.Mainnet);
+var consoleService = ConsoleService.Create(service, chains);
 
 while (true)
 {

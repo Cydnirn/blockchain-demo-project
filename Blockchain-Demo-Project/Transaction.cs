@@ -6,10 +6,10 @@ namespace Blockchain_Demo_Project;
 
 public class Transaction(string fromAddress, string toAddress, decimal amount) : ITransact
 {
-    public string FromAddress { get; private set; } = fromAddress;
-    public string ToAddress { get; private set; } = toAddress;
-    public decimal Amount { get; private set; } = amount;
-    public string TimeStamp { get; private set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+    public string FromAddress { get; } = fromAddress;
+    public string ToAddress { get;} = toAddress;
+    public decimal Amount { get; } = amount;
+    public string TimeStamp { get; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
     public string Signature { get; private set; } = string.Empty;
     public string CalculateHash()
     {

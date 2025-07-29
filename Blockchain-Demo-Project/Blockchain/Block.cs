@@ -21,7 +21,6 @@ public class Block(string previousHash, IReadOnlyList<ITransact> transactions) :
     private List<ITransact> Transactions { get; } = [..transactions];
     public override IReadOnlyList<ITransact> TransactionsReadOnly { get; } = [..transactions];
     public override int Nonce { get; protected set; }
-
     public void IncrementNonce() => Nonce++;
     public override void GenerateHash()
     {
