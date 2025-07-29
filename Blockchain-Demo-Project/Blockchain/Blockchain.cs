@@ -7,17 +7,18 @@ public abstract class BlockchainBase : IBlockchain
     public abstract string Name { get; protected set; }
     public abstract int Difficulty { get; protected set; }
     protected abstract decimal MiningReward { get; set; }
-    private List<ITransact> PendingTransactions { get; } = new();
+    public virtual decimal GetFee()
+    {
+        return 0;
+    }
+    protected virtual List<ITransact> PendingTransactions { get; } = new();
     public virtual IReadOnlyList<ITransact> GetPendingTransactions() => PendingTransactions.AsReadOnly();
     private List<IBlock> Chain { get; } = new();
     public virtual decimal GetMiningReward() => MiningReward;
     public abstract IReadOnlyList<IBlock> GetChain();
     protected abstract Block CreateGenesisBlock();
     public virtual IBlock GetLatestBlock() => Chain.Last() ?? throw new InvalidOperationException("Blockchain is empty.");
-    protected virtual void ClearPendingTransactions()
-    {
-        PendingTransactions.Clear();
-    }
+    protected abstract void ClearPendingTransactions();
     public virtual void AddBlock(IBlock block)
     {
         Chain.Add(block);
@@ -25,6 +26,11 @@ public abstract class BlockchainBase : IBlockchain
     public virtual void AddTransaction(ITransact transact)
     {
         PendingTransactions.Add(transact);
+    }
+
+    public virtual void AddTransaction(ITransact[] transacts)
+    {
+        PendingTransactions.AddRange(transacts);
     }
     protected abstract bool VerifyTransaction(ITransact transaction);
     public abstract decimal GetBalance(string walletAddress);

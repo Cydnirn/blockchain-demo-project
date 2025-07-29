@@ -4,186 +4,24 @@ using Blockchain_Demo_Project.Services;
 using Blockchain_Demo_Project.Blockchain;
 using Blockchain_Demo_Project.Interfaces;
 
-Wallet? wallet = null;
 var blockchain = new Mainchain();
 var testChain = new TestChain();
-IBlockchainService service = BlockchainService.Create(new Mainchain());
-
-void SelectChain()
+var chains = new Chains
 {
-    Console.Clear();
-    Console.WriteLine("Select a blockchain to work with:");
-    Console.WriteLine("1. Default Blockchain");
-    Console.WriteLine("2. Test Chain");
-    Console.WriteLine("Press 'q' to quit or any other key to continue...");
-    var input = Console.ReadKey(true).KeyChar;
-    switch (input)
-    {
-        case '1':
-            service = BlockchainService.Create(blockchain);
-            Console.WriteLine("Switched to Default Blockchain.");
-            break;
-        case '2':
-            service = BlockchainService.Create(testChain);
-            Console.WriteLine("Switched to Test Chain.");
-            break;
-        case 'q':
-        case 'Q':
-            return;
-        default:
-            Console.WriteLine("Invalid selection. Please try again.");
-            break;
-    }
-    Console.ReadKey();
-}
-
-void CreateWallet()
-{
-    if (wallet != null)
-    {
-        Console.WriteLine("You are already logged in with a wallet. Please log out first.");
-        return;
-    }
-    wallet = Wallet.Create();
-    Console.WriteLine("New wallet created with Public Key: " + wallet.PublicKey);
-    Console.WriteLine("Private Key: " + wallet.GetPrivateKey());
-    Console.ReadKey();
-}
-
-void ExportWallet()
-{
-    if (wallet != null)
-    {
-        Console.WriteLine("Current wallet is still active. Please log out first.");
-        return;
-    }
-    Console.WriteLine("Enter the private key to export the wallet:");
-    var privateKey = Console.ReadLine()?.Trim();
-    if (string.IsNullOrEmpty(privateKey))
-    {
-        Console.WriteLine("Private key cannot be empty.");
-        return;
-    }
-    try
-    {
-        wallet = Wallet.Export(privateKey);
-        Console.WriteLine("Wallet exported successfully!");
-        Console.WriteLine("Public Key: " + wallet.PublicKey);
-        Console.WriteLine("Private Key: " + wallet.GetPrivateKey());
-    } catch (Exception ex)
-    {
-        Console.WriteLine("Error exporting wallet: " + ex.Message);
-        return;
-    }
-    Console.ReadKey();
-}
-
-void LogOutWallet()
-{
-    if(wallet == null)
-    {
-        Console.WriteLine("No wallet created. Please create a wallet first.");
-        Console.ReadKey();
-        return;
-    }
-    Console.WriteLine("Are you sure you want to log out from the current wallet? (y/n)");
-    var confirmation = Console.ReadKey(true).KeyChar;
-    if (confirmation == 'y' || confirmation == 'Y')
-    {
-        wallet = null;
-        Console.WriteLine("Current wallet log out successfully.");
-    }
-    else
-    {
-        Console.WriteLine("Log out cancelled.");
-    }
-    Console.ReadKey();
-}
-
-void SendTx()
-{
-    if (wallet == null)
-    {
-        Console.WriteLine("No wallet created. Please create a wallet first.");
-        Console.ReadKey();
-        return;
-    }
-    Console.WriteLine("Enter the recipient's address:");
-    var toAddress = Console.ReadLine()?.Trim();
-    if (string.IsNullOrEmpty(toAddress))
-    {
-        Console.WriteLine("Recipient address cannot be empty.");
-        Console.ReadKey();
-        return;
-    }
-    Console.WriteLine("Enter the amount of WiwokCoin to send:");
-    if (!decimal.TryParse(Console.ReadLine()?.Trim(), out var amount) || amount <= 0)
-    {
-        Console.WriteLine("Invalid amount. Please enter a valid decimal number greater than zero.");
-        Console.ReadKey();
-        return;
-    }
-    var transaction = new Transaction(wallet.PublicKey, toAddress, amount);
-    try
-    {
-        service.AddTransaction(transaction, wallet.GetPrivateKey());
-        Console.WriteLine("Transaction added successfully!");
-        Console.ReadKey();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("Error adding transaction: " + ex.Message);
-        Console.ReadKey();
-    }
-}
-
-void CheckBalance()
-{
-    if (wallet == null)
-    {
-        Console.WriteLine("No wallet created. Please create a wallet first.");
-        Console.ReadKey();
-        return;
-    }
-    Console.WriteLine("Balance for wallet: " + service.GetBalance(wallet.PublicKey));
-    Console.ReadKey();
-}
-
-void GetChain()
-{
-    var chain = service.GetChain();
-    if(chain.Count == 0)
-    {
-        Console.WriteLine("Blockchain is empty.");
-    }
-    foreach (var block in chain)
-    {
-        Console.WriteLine("-- Block --");
-        Console.WriteLine($"Block Hash: {block.Hash}");
-        Console.WriteLine($"Previous Hash: {block.PreviousHash}");
-        Console.WriteLine($"Nonce: {block.Nonce}");
-        Console.WriteLine("Transactions:");
-        foreach (var tx in block.TransactionsReadOnly)
-        {
-            Console.WriteLine($"  From: {tx.FromAddress}, To: {tx.ToAddress}, Amount: {tx.Amount}, Signature: {tx.Signature}");
-        }
-        Console.WriteLine("-------------------");
-    }
-    Console.ReadKey();
-}
+    Mainnet = blockchain,
+    Testnet = testChain
+};
+IBlockchainService service = BlockchainService.Create(chains.Mainnet);
+IConsoleService consoleService = ConsoleService.Create(service, chains);
 
 while (true)
 {
     //Initiate the first wallet if it exists
-    if (wallet != null)
-    {
-        service.InitializeBlockchain(wallet.PublicKey);
-    }
-
+    consoleService.InitializeChains();
     Console.Clear();
     Console.WriteLine("Blockchain Demo Project");
-    Console.WriteLine("Current Blockchain: " + service.GetChainName());
-    Console.WriteLine("Current Wallet: " + (wallet != null ? wallet.PublicKey : "No wallet created"));
+    Console.WriteLine("Current Blockchain: " + consoleService.Service.GetChainName());
+    Console.WriteLine("Current Wallet: " + (consoleService.GetWallet() != null ? consoleService.GetWallet().PublicKey : "No wallet created"));
     Console.WriteLine("1. Create a new wallet");
     Console.WriteLine("2. Export an existing wallet");
     Console.WriteLine("3. Log out from the current wallet");
@@ -196,25 +34,25 @@ while (true)
     switch (input)
     {
         case '1':
-            CreateWallet();
+            consoleService.CreateWallet();
             break;
         case '2':
-            ExportWallet();
+            consoleService.ExportWallet();
             break;
         case '3':
-            LogOutWallet();
+            consoleService.LogOutWallet();
             break;
         case '4':
-            SendTx();
+            consoleService.SendTx();
             break;
         case '5':
-            CheckBalance();
+            consoleService.CheckBalance();
             break;
         case '6':
-           GetChain();
+            consoleService.GetChain();
             break;
         case '7':
-            SelectChain();
+            consoleService.SelectChain();
             break;
     }
     if (input == 'q' || input == 'Q')

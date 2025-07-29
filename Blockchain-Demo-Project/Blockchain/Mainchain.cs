@@ -7,11 +7,12 @@ public class Mainchain : BlockchainBase
     public override string Name { get; protected set; } = "Main Chain";
     private List<IBlock> Chain {get; } = new();
     public override IReadOnlyList<IBlock> GetChain() => Chain.AsReadOnly();
-    public override int Difficulty { get; protected set; } = 10;
+    public override int Difficulty { get; protected set; } = 5;
     protected override decimal MiningReward { get; set; } = 50;
-    private const decimal Fee = 0.25m;
+    private decimal Fee { get; set; } = 0.25m;
+    public override decimal GetFee() => Fee;
     public override decimal GetMiningReward() => MiningReward + Fee;
-    private List<ITransact> PendingTransactions { get;  } = new();
+    protected override List<ITransact> PendingTransactions { get;  } = new();
     public override IReadOnlyList<ITransact> GetPendingTransactions() => PendingTransactions.AsReadOnly();
     protected override Block CreateGenesisBlock()
     {
@@ -81,9 +82,16 @@ public class Mainchain : BlockchainBase
         {
             throw new InvalidOperationException("Transaction verification failed.");
         }
-        ITransact txWithFee = new Transaction(transaction.FromAddress, "System",  Fee);
         PendingTransactions.Add(transaction);
-        PendingTransactions.Add(txWithFee);
+    }
+
+    public override void AddTransaction(ITransact[] transacts)
+    {
+        if (transacts.Any(tx => !VerifyTransaction(tx)))
+        {
+            throw new InvalidOperationException("Transact verification failed.");
+        }
+        PendingTransactions.AddRange(transacts);
     }
 
     protected override decimal CalculateAddressBalance(string address) =>

@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using Blockchain_Demo_Project.Interfaces;
 using Blockchain_Demo_Project.Services;
 
@@ -8,19 +7,19 @@ namespace Blockchain_Demo_Project;
 /// Contains a public key and a private key for cryptographic operations.
 /// The public key is used to identify the wallet, while the private key is used for signing
 /// transactions and proving ownership of the wallet's funds.
-public class Wallet(string publicKey, string privateKey)
+public class Wallet(string publicKey, string privateKey) : IWallet
 {
     public string PublicKey { get; } = publicKey;
     private string PrivateKey { get; } = privateKey;
 
-    internal static Wallet Create()
+    public static IWallet Create()
     {
         var keyGenerator = new EcdsaKeyService();
         var factory = new WalletFactory(keyGenerator);
         return factory.CreateWallet();
     }
 
-    internal static Wallet Export(string privateKey)
+    public static IWallet Export(string privateKey)
     {
         var keyGenerator = new EcdsaKeyService();
         var factory = new WalletFactory(keyGenerator);
@@ -40,7 +39,7 @@ public class Wallet(string publicKey, string privateKey)
 /// Factory class responsible for creating wallet instances
 internal class WalletFactory (KeyGenerator keyGenerator) : IWalletFactory
 {
-    public Wallet CreateWallet()
+    public IWallet CreateWallet()
     {
         try
         {
@@ -54,7 +53,7 @@ internal class WalletFactory (KeyGenerator keyGenerator) : IWalletFactory
         }
     }
 
-    public Wallet ExportWallet(string privateKey)
+    public IWallet ExportWallet(string privateKey)
     {
         try
         {

@@ -22,11 +22,15 @@ public class TestChain : BlockchainBase
         PendingTransactions.Add(genesisTransaction);
         return new Block("0", PendingTransactions);
     }
-    private List<ITransact> PendingTransactions { get;  } = new();
+    protected override List<ITransact> PendingTransactions { get;  } = new();
     public override IReadOnlyList<ITransact> GetPendingTransactions() => PendingTransactions.AsReadOnly();
     private List<IBlock> Chain { get;  } = new();
     public override IReadOnlyList<IBlock> GetChain() => Chain.AsReadOnly();
     public override IBlock GetLatestBlock() => Chain.AsReadOnly().LastOrDefault() ?? throw new InvalidOperationException("Blockchain is empty.");
+    protected override void ClearPendingTransactions()
+    {
+        PendingTransactions.Clear();
+    }
     public override void AddBlock(IBlock block)
     {
         try

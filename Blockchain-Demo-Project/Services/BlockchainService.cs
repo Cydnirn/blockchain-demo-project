@@ -33,10 +33,20 @@ public class BlockchainService: IBlockchainService
 
     public void AddTransaction(ITransact transaction, string privateKey)
     {
-        if (transaction == null) throw new ArgumentNullException(nameof(transaction));
+        ArgumentNullException.ThrowIfNull(transaction);
         if (string.IsNullOrEmpty(privateKey)) throw new ArgumentException("Private key cannot be null or empty.", nameof(privateKey));
-        transaction.SignTransaction(privateKey);
-        Blockchain.AddTransaction(transaction);
+        if (Blockchain.GetFee() > 0)
+        {
+            ITransact txWithFee = new Transaction(transaction.FromAddress, "System", Blockchain.GetFee());
+            transaction.SignTransaction(privateKey);
+            txWithFee.SignTransaction(privateKey);
+            Blockchain.AddTransaction([transaction, txWithFee]);
+        }
+        else
+        {
+            transaction.SignTransaction(privateKey);
+            Blockchain.AddTransaction(transaction);
+        }
         ExecuteMiner(transaction.FromAddress);
     }
 
