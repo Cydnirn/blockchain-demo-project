@@ -25,7 +25,14 @@ public class Block(string previousHash, IReadOnlyList<ITransact> transactions) :
     public override void GenerateHash()
     {
         // Concatenate the previous hash, timestamp, nonce, and transaction signatures to create a unique hash for the block
-        Hash = Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(PreviousHash + Timestamp + Nonce + string.Join("", Transactions.Select(t => t.Signature)))));
+        Hash = Convert.ToHexString(SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(
+                PreviousHash + Timestamp + Nonce + string.Join(
+                    "", Transactions.Select(t => t.Signature)
+                    )
+                )
+            )
+        );
     }
 
     public override bool ValidBlock(int difficulty = 2)

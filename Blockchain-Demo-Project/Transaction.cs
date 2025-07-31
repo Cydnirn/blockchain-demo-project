@@ -13,9 +13,12 @@ public class Transaction(string fromAddress, string toAddress, decimal amount) :
     public string Signature { get; private set; } = string.Empty;
     private string CalculateHash()
     {
-        return Convert.ToBase64String(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes($"{FromAddress}:{ToAddress}:{Amount}:{TimeStamp}")));
+        return Convert.ToBase64String(SHA256.HashData
+            (System.Text.Encoding.UTF8.GetBytes(
+                $"" + $"{FromAddress}:{ToAddress}:{Amount}:{TimeStamp}")
+            )
+        );
     }
-
     public void SignTransaction(string privateKey)
     {
         try
@@ -34,7 +37,6 @@ public class Transaction(string fromAddress, string toAddress, decimal amount) :
             Console.WriteLine($"Error signing transaction: {ex.Message}");
         }
     }
-
     public virtual bool VerifySignature()
     {
         try
