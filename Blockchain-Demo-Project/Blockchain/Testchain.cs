@@ -69,44 +69,5 @@ public class TestChain : BlockchainBase
             throw;
         }
     }
-    public override void ValidateChain()
-    {
-        try
-        {
-            for (var i = 1; i < Chain.Count; i++)
-            {
-                var currentBlock = Chain[i];
-                var previousBlock = Chain[i - 1];
 
-                if (currentBlock.PreviousHash != previousBlock.Hash)
-                {
-                    throw new InvalidOperationException($"Invalid chain: Block {i} has an incorrect previous hash.");
-                }
-
-                if (!currentBlock.ValidBlock(Difficulty))
-                {
-                    throw new InvalidOperationException($"Invalid block: Block {i} is not valid.");
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Error validating chain: {e.Message}");
-            throw;
-        }
-    }
-
-    public override bool IsValidChain()
-    {
-        try
-        {
-            ValidateChain();
-            return true;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Blockchain validation failed: {e.Message}");
-            return false;
-        }
-    }
 }

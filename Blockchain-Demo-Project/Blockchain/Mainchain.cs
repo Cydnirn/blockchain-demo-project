@@ -116,17 +116,4 @@ public class Mainchain : BlockchainBase
         }
     }
 
-    public override bool IsValidChain()
-    {
-        try
-        {
-            ValidateChain();
-            return true;
-        }
-        catch (InvalidOperationException ex)
-        {
-            Console.WriteLine($"Blockchain validation failed: {ex.Message}");
-            return false;
-        }
-    }
 }

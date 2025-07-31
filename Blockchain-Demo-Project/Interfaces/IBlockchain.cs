@@ -13,6 +13,5 @@ public interface IBlockchain
     public void AddTransaction(ITransact transaction);
     public void AddTransaction(ITransact[] transacts);
     public decimal GetBalance(string walletAddress);
-    public void ValidateChain();
     public bool IsValidChain();
 }

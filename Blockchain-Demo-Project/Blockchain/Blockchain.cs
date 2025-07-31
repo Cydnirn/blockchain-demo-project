@@ -59,25 +59,46 @@ public abstract class BlockchainBase : IBlockchain
     }
     protected abstract bool VerifyTransaction(ITransact transaction);
     public virtual decimal GetBalance(string walletAddress) => CalculateAddressBalance(walletAddress);
-    public virtual void ValidateChain()
+    private void ValidateChain()
     {
-        for(var i = 1; i < Chain.Count; i++)
+        try
         {
-            var currentBlock = Chain[i];
-            var previousBlock = Chain[i - 1];
-
-            if (currentBlock.PreviousHash != previousBlock.Hash)
+            for (var i = 1; i < Chain.Count; i++)
             {
-                throw new InvalidOperationException($"Invalid chain: Block {i} has an incorrect previous hash.");
-            }
+                var currentBlock = Chain[i];
+                var previousBlock = Chain[i - 1];
 
-            if (!currentBlock.ValidBlock(Difficulty))
-            {
-                throw new InvalidOperationException($"Invalid block: Block {i} is not valid.");
+                if (currentBlock.PreviousHash != previousBlock.Hash)
+                {
+                    throw new InvalidOperationException($"Invalid chain: Block {i} has an incorrect previous hash.");
+                }
+
+                if (!currentBlock.ValidBlock(Difficulty))
+                {
+                    throw new InvalidOperationException($"Invalid block: Block {i} is not valid.");
+                }
             }
         }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error validating chain: {e.Message}");
+            throw;
+        }
     }
-    public abstract bool IsValidChain();
+
+    public virtual bool IsValidChain()
+    {
+        try
+        {
+            ValidateChain();
+            return true;
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine($"Blockchain validation failed: {ex.Message}");
+            return false;
+        }
+    }
     protected virtual decimal CalculateAddressBalance(string address) =>
         Chain.SelectMany(block => block.TransactionsReadOnly)
             .Sum(transaction =>
