@@ -83,7 +83,7 @@ public class Mainchain : BlockchainBase
             Console.WriteLine($"Error adding transaction: {e.Message}");
             throw;
         }
-        }
+    }
 
     public override void AddTransaction(ITransact[] transacts)
     {

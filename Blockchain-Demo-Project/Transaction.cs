@@ -11,7 +11,7 @@ public class Transaction(string fromAddress, string toAddress, decimal amount) :
     public decimal Amount { get; } = amount;
     public string TimeStamp { get; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
     public string Signature { get; private set; } = string.Empty;
-    public string CalculateHash()
+    private string CalculateHash()
     {
         return Convert.ToBase64String(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes($"{FromAddress}:{ToAddress}:{Amount}:{TimeStamp}")));
     }
