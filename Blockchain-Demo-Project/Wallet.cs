@@ -52,7 +52,6 @@ internal class WalletFactory (KeyGenerator keyGenerator) : IWalletFactory
             throw;
         }
     }
-
     public IWallet ExportWallet(string privateKey)
     {
         try
