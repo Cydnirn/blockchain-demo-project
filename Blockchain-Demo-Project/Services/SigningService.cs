@@ -5,7 +5,6 @@ namespace Blockchain_Demo_Project.Services;
 internal class SigningService : EcdsaKeyService, ISigningService
 {
     private readonly byte[]? _privateKey;
-
     private SigningService(string? privateKey = null)
     {
         _privateKey = string.IsNullOrEmpty(privateKey) ? null : Convert.FromHexString(privateKey);
